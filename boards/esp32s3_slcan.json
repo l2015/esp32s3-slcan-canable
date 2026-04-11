@@ -1,0 +1,38 @@
+{
+  "build": {
+    "arduino": {
+      "ldscript": "esp32s3_out.ld",
+      "partitions": "default_8MB.csv"
+    },
+    "core": "esp32",
+    "extra_flags": [
+      "-DARDUINO_USB_CDC_ON_BOOT=1",
+      "-DARDUINO_ESP32S3_DEV",
+      "-DBOARD_HAS_PSRAM"
+    ],
+    "f_cpu": "240000000L",
+    "f_flash": "80000000L",
+    "flash_mode": "qio",
+    "mcu": "esp32s3",
+    "variant": "esp32s3",
+    "usb_vid": "0x16D0",
+    "usb_pid": "0x117E",
+    "usb_product": "CANable 2 Slcan",
+    "usb_manufacturer": "CANable"
+  },
+  "connectivity": ["wifi", "bluetooth", "ble"],
+  "debug": {
+    "openocd_target": "esp32s3.cfg"
+  },
+  "frameworks": ["arduino"],
+  "name": "ESP32-S3 CANable SLCAN",
+  "upload": {
+    "flash_size": "8MB",
+    "maximum_ram_size": 327680,
+    "maximum_size": 8388608,
+    "require_upload_port": true,
+    "speed": 460800
+  },
+  "url": "https://github.com/mintynet/esp32-slcan",
+  "vendor": "CANable"
+}
