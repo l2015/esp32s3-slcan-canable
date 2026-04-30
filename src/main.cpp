@@ -140,6 +140,7 @@ static twai_timing_config_t get_timing_config(uint16_t kbps) {
         case 10:   return TWAI_TIMING_CONFIG_10KBITS();
         case 20:   return TWAI_TIMING_CONFIG_20KBITS();
         case 50:   return TWAI_TIMING_CONFIG_50KBITS();
+        case 83:   return { .brp = 48, .tseg_1 = 13, .tseg_2 = 6, .sjw = 3, .triple_sampling = false };
         case 100:  return TWAI_TIMING_CONFIG_100KBITS();
         case 125:  return TWAI_TIMING_CONFIG_125KBITS();
         case 250:  return TWAI_TIMING_CONFIG_250KBITS();
@@ -148,6 +149,11 @@ static twai_timing_config_t get_timing_config(uint16_t kbps) {
         case 1000: return TWAI_TIMING_CONFIG_1MBITS();
         default:   return TWAI_TIMING_CONFIG_500KBITS();
     }
+}
+
+static void apply_tx_mode(twai_message_t* msg) {
+    // TWAI retries automatically unless single-shot mode is requested.
+    msg->ss = (user_flags & USR_Retransmit) ? 0 : 1;
 }
 
 static bool can_open_impl() {
@@ -163,7 +169,13 @@ static bool can_open_impl() {
     }
     g_config.tx_queue_len = TX_QUEUE_SIZE;
     g_config.rx_queue_len = RX_QUEUE_SIZE;
-    g_config.alerts_enabled = TWAI_ALERT_BUS_OFF | TWAI_ALERT_ERR_PASS | TWAI_ALERT_RX_QUEUE_FULL;
+    g_config.alerts_enabled = TWAI_ALERT_BUS_OFF |
+                              TWAI_ALERT_BUS_RECOVERED |
+                              TWAI_ALERT_ERR_PASS |
+                              TWAI_ALERT_ERR_ACTIVE |
+                              TWAI_ALERT_ABOVE_ERR_WARN |
+                              TWAI_ALERT_BELOW_ERR_WARN |
+                              TWAI_ALERT_RX_QUEUE_FULL;
     g_config.clkout_divider = 0;
 
     twai_timing_config_t t_config = get_timing_config(can_speed_kbps);
@@ -211,6 +223,9 @@ static bool can_open_impl() {
     }
 
     bus_open = true;
+    bus_status = 0x00;
+    tx_err_count = 0;
+    rx_err_count = 0;
     return true;
 }
 
@@ -219,6 +234,9 @@ static void can_close_impl() {
     twai_stop();
     twai_driver_uninstall();
     bus_open = false;
+    bus_status = 0x00;
+    tx_err_count = 0;
+    rx_err_count = 0;
 }
 
 // ======================== SLCAN COMMAND PARSER =================
@@ -314,9 +332,11 @@ static void parse_slcan_command(char* buf, int len) {
             twai_message_t msg = {};
             msg.extd = 0;
             msg.rtr = 0;
+            apply_tx_mode(&msg);
 
             uint32_t id;
             if (!parse_hex_bytes(buf, 1, 3, &id)) { send_feedback('2'); return; }
+            if (id > TWAI_STD_ID_MASK) { send_feedback('2'); return; }
             msg.identifier = id;
 
             uint32_t dlc;
@@ -364,9 +384,11 @@ static void parse_slcan_command(char* buf, int len) {
             twai_message_t msg = {};
             msg.extd = 1;
             msg.rtr = 0;
+            apply_tx_mode(&msg);
 
             uint32_t id;
             if (!parse_hex_bytes(buf, 1, 8, &id)) { send_feedback('2'); return; }
+            if (id > TWAI_EXTD_ID_MASK) { send_feedback('2'); return; }
             msg.identifier = id;
 
             uint32_t dlc;
@@ -413,9 +435,11 @@ static void parse_slcan_command(char* buf, int len) {
             twai_message_t msg = {};
             msg.extd = 0;
             msg.rtr = 1;
+            apply_tx_mode(&msg);
 
             uint32_t id;
             if (!parse_hex_bytes(buf, 1, 3, &id)) { send_feedback('2'); return; }
+            if (id > TWAI_STD_ID_MASK) { send_feedback('2'); return; }
             msg.identifier = id;
 
             uint32_t dlc;
@@ -439,9 +463,11 @@ static void parse_slcan_command(char* buf, int len) {
             twai_message_t msg = {};
             msg.extd = 1;
             msg.rtr = 1;
+            apply_tx_mode(&msg);
 
             uint32_t id;
             if (!parse_hex_bytes(buf, 1, 8, &id)) { send_feedback('2'); return; }
+            if (id > TWAI_EXTD_ID_MASK) { send_feedback('2'); return; }
             msg.identifier = id;
 
             uint32_t dlc;
@@ -830,8 +856,22 @@ void loop() {
                 bus_status = 0x30;
                 send_error_report(0x00);
             }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                if (twai_start() == ESP_OK) {
+                    bus_status = 0x00;
+                    send_error_report(0x00);
+                }
+            }
             if (alerts & TWAI_ALERT_ERR_PASS) {
                 bus_status = 0x20;
+                send_error_report(0x00);
+            }
+            if (alerts & TWAI_ALERT_ABOVE_ERR_WARN) {
+                bus_status = 0x10;
+                send_error_report(0x00);
+            }
+            if ((alerts & TWAI_ALERT_ERR_ACTIVE) || (alerts & TWAI_ALERT_BELOW_ERR_WARN)) {
+                bus_status = 0x00;
                 send_error_report(0x00);
             }
             if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
