@@ -1,79 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32-S3 CANable SLCAN — Web Flasher</title>
+
+  <!-- SEO -->
+  <title>WebUSB Flasher — ESP32-S3 CANable SLCAN Firmware</title>
+  <meta name="description" content="Flash ESP32-S3 CANable SLCAN firmware directly from your browser. No build tools, no drivers — just USB-OTG + Chrome/Edge. WebUSB one-click install.">
+  <meta name="keywords" content="ESP32-S3, CANable, SLCAN, firmware flasher, WebUSB, ESP Web Tools, CAN bus, candleLight, flash firmware, browser flashing">
+  <meta name="author" content="l2015">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://l2015.github.io/esp32s3-slcan-canable/flasher/">
+
+  <!-- hreflang -->
+  <link rel="alternate" hreflang="en" href="https://l2015.github.io/esp32s3-slcan-canable/flasher/">
+  <link rel="alternate" hreflang="zh-CN" href="https://l2015.github.io/esp32s3-slcan-canable/flasher/?lang=zh">
+  <link rel="alternate" hreflang="x-default" href="https://l2015.github.io/esp32s3-slcan-canable/flasher/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="WebUSB Flasher — ESP32-S3 CANable SLCAN">
+  <meta property="og:description" content="Flash ESP32-S3 CANable SLCAN firmware directly from your browser — no tools required.">
+  <meta property="og:url" content="https://l2015.github.io/esp32s3-slcan-canable/flasher/">
+  <meta property="og:site_name" content="ESP32-S3 CANable SLCAN">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WebUSB Flasher — ESP32-S3 CANable SLCAN">
+  <meta name="twitter:description" content="Flash ESP32-S3 CANable SLCAN firmware directly from your browser.">
+
+  <!-- JSON-LD HowTo -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Flash ESP32-S3 CANable SLCAN Firmware via WebUSB",
+    "description": "Flash ESP32-S3 CANable SLCAN firmware directly from your browser using WebUSB and ESP Web Tools.",
+    "step": [
+      { "@type": "HowToStep", "position": 1, "name": "Connect ESP32-S3 via USB-OTG" },
+      { "@type": "HowToStep", "position": 2, "name": "Enter boot mode: hold BOOT, press RST, release BOOT" },
+      { "@type": "HowToStep", "position": 3, "name": "Click Connect and select device" },
+      { "@type": "HowToStep", "position": 4, "name": "Click Install to flash" }
+    ]
+  }
+  </script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+      background: #1a1a2e; color: #e0e0e0; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
     }
+
+    /* Language Toggle */
+    .lang-bar {
+      position: fixed; top: 12px; right: 16px; z-index: 1000;
+      display: flex; gap: 4px; background: #16213e; border: 1px solid #0f3460;
+      border-radius: 24px; padding: 3px;
+    }
+    .lang-btn {
+      background: transparent; border: none; color: #666; cursor: pointer;
+      font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s;
+      font-family: inherit; font-weight: 500;
+    }
+    .lang-btn.active { background: #e94560; color: #fff; }
+    .lang-btn:hover:not(.active) { color: #a0a0b0; }
+
     .card {
-      background: #16213e;
-      border: 1px solid #0f3460;
-      border-radius: 16px;
-      padding: 40px;
-      max-width: 560px;
-      width: 100%;
-      text-align: center;
+      background: #16213e; border: 1px solid #0f3460;
+      border-radius: 16px; padding: 40px; margin-top: 60px;
+      max-width: 620px; width: 100%; text-align: center;
     }
-    .logo {
-      font-size: 48px;
-      margin-bottom: 8px;
-    }
-    h1 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #e94560;
-    }
-    h2 {
-      font-size: 14px;
-      font-weight: 400;
-      color: #a0a0b0;
-      margin-bottom: 32px;
-    }
+    .logo { font-size: 48px; margin-bottom: 8px; }
+    h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; color: #e94560; }
+    h2 { font-size: 14px; font-weight: 400; color: #a0a0b0; margin-bottom: 32px; }
+
     .steps {
-      text-align: left;
-      background: #0f3460;
-      border-radius: 10px;
-      padding: 20px 24px;
-      margin-bottom: 28px;
+      text-align: left; background: #0f3460;
+      border-radius: 10px; padding: 20px 24px; margin-bottom: 28px;
     }
-    .steps ol {
-      padding-left: 20px;
-      line-height: 2;
-    }
+    .steps ol { padding-left: 20px; line-height: 2; }
     .steps li { font-size: 14px; }
     .steps code {
-      background: #1a1a2e;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 13px;
+      background: #1a1a2e; color: #e94560;
+      padding: 2px 6px; border-radius: 4px; font-size: 13px;
     }
+
     .warning {
-      background: rgba(233, 69, 96, 0.15);
-      border: 1px solid #e94560;
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 13px;
-      margin-bottom: 24px;
-      text-align: left;
+      background: rgba(233, 69, 96, 0.12);
+      border: 1px solid #e94560; border-radius: 8px;
+      padding: 14px 16px; font-size: 13px; margin-bottom: 24px; text-align: left; line-height: 1.6;
     }
-    .version {
-      font-size: 12px;
-      color: #666;
-      margin-top: 20px;
+
+    .wiring-section {
+      background: #0f3460; border-radius: 10px;
+      padding: 18px 20px; margin-bottom: 24px; text-align: left;
     }
+    .wiring-section h3 {
+      font-size: 13px; color: #e94560; margin-bottom: 12px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .wiring-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;
+      font-size: 13px; line-height: 1.8;
+    }
+    .wiring-grid code {
+      background: #1a1a2e; color: #e94560;
+      padding: 2px 6px; border-radius: 4px; font-size: 12px;
+    }
+
+    .version { font-size: 12px; color: #555; margin-top: 20px; }
+
     esp-web-install-button {
       --esp-tools-button-color: #e94560;
       --esp-tools-button-text-color: #fff;
@@ -82,17 +122,57 @@
       --esp-tools-button-padding: 12px 40px;
       --esp-tools-progress-color: #e94560;
     }
-    .compat { font-size: 12px; color: #666; margin-top: 12px; }
+    .compat { font-size: 12px; color: #555; margin-top: 12px; }
+
+    /* Back link */
+    .back { margin: 32px 0 10px; }
+    .back a { color: #555; font-size: 13px; text-decoration: none; }
+    .back a:hover { color: #e94560; }
+
+    /* Footer */
+    .footer {
+      text-align: center; padding: 32px 20px; width: 100%;
+      color: #444; font-size: 13px;
+    }
+    .footer a { color: #e94560; text-decoration: none; }
+    .footer .author { font-size: 14px; color: #666; margin-top: 8px; }
+    .footer .author strong { color: #e94560; }
+
+    /* Bilingual visibility */
+    [lang] { display: none; }
+    html[data-lang="zh"] [lang="zh"],
+    html[data-lang="en"] [lang="en"] { display: initial; }
+    html[data-lang="zh"] span[lang="zh"],
+    html[data-lang="en"] span[lang="en"] { display: inline; }
+    html[data-lang="zh"] li[lang="zh"],
+    html[data-lang="en"] li[lang="en"] { display: list-item; }
+    html[data-lang="zh"] div[lang="zh"],
+    html[data-lang="en"] div[lang="en"] { display: block; }
+    html[data-lang="zh"] ol[lang="zh"],
+    html[data-lang="en"] ol[lang="en"] { display: block; }
+    html[data-lang="zh"] h3[lang="zh"],
+    html[data-lang="en"] h3[lang="en"] { display: block; }
   </style>
+
+  <!-- ESP Web Tools -->
   <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
 </head>
 <body>
-  <div class="card">
-    <div class="logo">🚗</div>
-    <h1>ESP32-S3 CANable SLCAN</h1>
-    <h2>WebUSB Firmware Flasher</h2>
 
-    <div class="steps">
+  <!-- Language Toggle -->
+  <div class="lang-bar">
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+    <button class="lang-btn" onclick="setLang('zh')" id="btn-zh">中</button>
+  </div>
+
+  <div class="card">
+    <div class="logo">⚡</div>
+    <h1>ESP32-S3 CANable SLCAN</h1>
+    <h2 lang="en">WebUSB Firmware Flasher</h2>
+    <h2 lang="zh">WebUSB 固件刷写</h2>
+
+    <!-- Instructions - English -->
+    <div lang="en" class="steps">
       <ol>
         <li>Connect ESP32-S3 via <strong>USB-OTG</strong> port to this computer</li>
         <li>Hold <code>BOOT</code>, press <code>RST</code>, release <code>BOOT</code></li>
@@ -102,23 +182,95 @@
       </ol>
     </div>
 
-    <div class="warning">
+    <!-- Instructions - Chinese -->
+    <div lang="zh" class="steps">
+      <ol>
+        <li>通过 <strong>USB-OTG</strong> 口将 ESP32-S3 连接到电脑</li>
+        <li>按住 <code>BOOT</code> → 按 <code>RST</code> → 松开 <code>BOOT</code></li>
+        <li>点击下方 <strong>Connect</strong> 按钮</li>
+        <li>在浏览器弹出的设备列表中选中 ESP32-S3</li>
+        <li>点击 <strong>Install</strong> 开始刷写固件</li>
+      </ol>
+    </div>
+
+    <!-- Wiring Quick Reference -->
+    <div class="wiring-section">
+      <h3 lang="en">🔧 GPIO Wiring (SN65HVD230)</h3>
+      <h3 lang="zh">🔧 GPIO 接线 (SN65HVD230)</h3>
+      <div class="wiring-grid">
+        <span><code>GPIO 4</code> → TXD</span>
+        <span><code>GPIO 5</code> → RXD</span>
+        <span><code>3.3V</code> → VCC</span>
+        <span><code>GND</code> → GND</span>
+        <span>CANH → CAN_H</span>
+        <span>CANL → CAN_L</span>
+      </div>
+    </div>
+
+    <!-- Warning - English -->
+    <div lang="en" class="warning">
       ⚠️ Use the <strong>USB-OTG</strong> port (not USB-Serial/JTAG).<br>
-      First-time flashing requires manual boot mode entry.
-      After the firmware is installed, future updates can use the SLCAN serial port.
+      First-time flashing requires manual boot mode entry.<br>
+      After firmware is installed, WebUSB can update via the SLCAN CDC port.
     </div>
 
-    <esp-web-install-button
-      manifest="manifest.json">
-    </esp-web-install-button>
-
-    <div class="compat">
-      Requires Chrome / Edge 89+ on desktop
+    <!-- Warning - Chinese -->
+    <div lang="zh" class="warning">
+      ⚠️ 请使用 <strong>USB-OTG</strong> 接口（不是 USB-Serial/JTAG 口）。<br>
+      首次烧录需要手动进入下载模式。<br>
+      固件刷入后，WebUSB 可通过 SLCAN CDC 端口直接更新。
     </div>
+
+    <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+
+    <div class="compat" lang="en">Requires Chrome / Edge 89+ on desktop</div>
+    <div class="compat" lang="zh">需要 Chrome / Edge 89+ 桌面版浏览器</div>
 
     <div class="version">
-      Firmware: CANable SLCAN v1.1.0 · ESP32-S3 · VID 0x16D0 PID 0x117E
+      <span lang="en">Firmware: CANable SLCAN v1.1.0 · ESP32-S3 · VID 0x16D0 PID 0x117E</span>
+      <span lang="zh">固件：CANable SLCAN v1.1.0 · ESP32-S3 · VID 0x16D0 PID 0x117E</span>
     </div>
   </div>
+
+  <div class="back">
+    <a href="../" lang="en">← Back to project page</a>
+    <a href="../" lang="zh">← 返回项目介绍页</a>
+  </div>
+
+  <div class="footer">
+    <p>
+      <a href="https://github.com/l2015/esp32s3-slcan-canable">GitHub</a>
+      · <a href="../">Project Page</a>
+      · <a href="https://opensource.org/licenses/MIT">MIT License</a>
+    </p>
+    <p class="author">
+      <span lang="en">Author: <strong>l2015</strong></span>
+      <span lang="zh">作者：<strong>l2015</strong></span>
+    </p>
+  </div>
+
+<script>
+// --- Bilingual toggle ---
+const DEFAULT = 'en'; // flasher page defaults to English
+const LANG_KEY = 'slcanLang';
+
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang);
+  localStorage.setItem(LANG_KEY, lang);
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+}
+
+function initLang() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  const stored = localStorage.getItem(LANG_KEY);
+  const lang = urlLang || stored || DEFAULT;
+  setLang(lang);
+}
+
+initLang();
+</script>
+
 </body>
 </html>

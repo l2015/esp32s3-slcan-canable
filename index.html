@@ -3,82 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32-S3 CANable SLCAN</title>
+
+  <!-- SEO -->
+  <title>ESP32-S3 CANable SLCAN — 免驱 CAN 总线适配器</title>
+  <meta name="description" content="用 ESP32-S3 USB OTG 模拟 CANable，免驱 SLCAN 适配器。支持 10k-1M 波特率、CAN 2.0B、socketcand/can-utils/python-can 上位机。开源固件，WebUSB 刷入。">
+  <meta name="keywords" content="ESP32-S3, CANable, SLCAN, CAN bus, CAN适配器, TinyUSB, candleLight, socketcand, can-utils, python-can, TWAI, SN65HVD230, 开源固件, WebUSB">
+  <meta name="author" content="l2015">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://l2015.github.io/esp32s3-slcan-canable/">
+
+  <!-- hreflang -->
+  <link rel="alternate" hreflang="zh-CN" href="https://l2015.github.io/esp32s3-slcan-canable/">
+  <link rel="alternate" hreflang="en" href="https://l2015.github.io/esp32s3-slcan-canable/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://l2015.github.io/esp32s3-slcan-canable/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ESP32-S3 CANable SLCAN — 免驱 CAN 总线适配器">
+  <meta property="og:description" content="ESP32-S3 USB OTG 模拟 CANable，免驱 SLCAN 适配器。支持 CAN 2.0B，WebUSB 刷入，开源固件。">
+  <meta property="og:url" content="https://l2015.github.io/esp32s3-slcan-canable/">
+  <meta property="og:site_name" content="ESP32-S3 CANable SLCAN">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ESP32-S3 CANable SLCAN — 免驱 CAN 总线适配器">
+  <meta name="twitter:description" content="ESP32-S3 USB OTG 模拟 CANable，免驱 SLCAN 适配器。支持 CAN 2.0B，WebUSB 刷入。">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ESP32-S3 CANable SLCAN",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Embedded",
+    "description": "ESP32-S3 USB OTG CANable-compatible SLCAN firmware adapter supporting CAN 2.0B up to 1 Mbps",
+    "author": { "@type": "Person", "name": "l2015" },
+    "codeRepository": "https://github.com/l2015/esp32s3-slcan-canable",
+    "license": "https://opensource.org/licenses/MIT",
+    "version": "1.1.0"
+  }
+  </script>
+
+  <!-- Breadcrumb -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem", "position": 1,
+      "name": "ESP32-S3 CANable SLCAN"
+    }]
+  }
+  </script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+      background: #1a1a2e; color: #e0e0e0; min-height: 100vh;
     }
+
+    /* Language Toggle */
+    .lang-bar {
+      position: fixed; top: 12px; right: 16px; z-index: 1000;
+      display: flex; gap: 4px; background: #16213e; border: 1px solid #0f3460;
+      border-radius: 24px; padding: 3px;
+    }
+    .lang-btn {
+      background: transparent; border: none; color: #666; cursor: pointer;
+      font-size: 13px; padding: 6px 14px; border-radius: 20px; transition: all 0.2s;
+      font-family: inherit; font-weight: 500;
+    }
+    .lang-btn.active { background: #e94560; color: #fff; }
+    .lang-btn:hover:not(.active) { color: #a0a0b0; }
+
+    /* Hero */
     .hero {
       background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
-      padding: 80px 20px 60px;
-      text-align: center;
-      border-bottom: 3px solid #e94560;
+      padding: 80px 20px 60px; text-align: center; border-bottom: 3px solid #e94560;
     }
     .hero .emoji { font-size: 64px; margin-bottom: 16px; }
     .hero h1 { font-size: 36px; color: #e94560; margin-bottom: 8px; }
-    .hero .tagline { font-size: 18px; color: #a0a0b0; margin-bottom: 32px; }
-    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .hero .tagline { font-size: 18px; color: #a0a0b0; margin-bottom: 32px; max-width: 600px; margin-inline: auto; }
+    .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
     .badge {
-      background: rgba(233, 69, 96, 0.15);
-      border: 1px solid #e94560;
-      border-radius: 20px;
-      padding: 6px 16px;
-      font-size: 13px;
-      color: #e94560;
+      background: rgba(233, 69, 96, 0.15); border: 1px solid #e94560;
+      border-radius: 20px; padding: 6px 16px; font-size: 13px; color: #e94560;
     }
-    .cta {
-      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-    }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn {
       display: inline-block; padding: 12px 28px; border-radius: 10px;
-      font-size: 15px; font-weight: 600; text-decoration: none;
-      transition: all 0.2s;
+      font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s;
     }
     .btn-primary { background: #e94560; color: #fff; }
     .btn-primary:hover { background: #d63852; transform: translateY(-1px); }
     .btn-secondary { background: transparent; color: #e94560; border: 2px solid #e94560; }
     .btn-secondary:hover { background: rgba(233, 69, 96, 0.1); }
-    .content {
-      max-width: 800px; margin: 0 auto; padding: 48px 20px;
-    }
-    .section { margin-bottom: 40px; }
-    .section h2 { font-size: 20px; color: #e94560; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #0f3460; }
-    .section p, .section li { font-size: 15px; line-height: 1.7; color: #c0c0d0; }
-    .section ul { padding-left: 20px; }
+
+    .content { max-width: 860px; margin: 0 auto; padding: 48px 20px; }
+    .section { margin-bottom: 44px; }
+    .section h2 { font-size: 22px; color: #e94560; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #0f3460; display: flex; align-items: center; gap: 10px; }
+    .section p, .section li { font-size: 15px; line-height: 1.8; color: #c0c0d0; }
+    .section ul, .section ol { padding-left: 22px; }
     .section li { margin-bottom: 6px; }
-    .specs {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-    }
+    .section a { color: #e94560; }
+
+    /* Specs */
+    .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
     .spec-card {
       background: #16213e; border: 1px solid #0f3460;
       border-radius: 12px; padding: 20px; text-align: center;
     }
-    .spec-card .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .spec-card .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .spec-card .value { font-size: 20px; font-weight: 700; color: #e0e0e0; }
-    .commands {
-      background: #0f3460; border-radius: 12px; padding: 20px 24px;
-      overflow-x: auto;
+
+    /* Wiring */
+    .wiring { background: #0f3460; border-radius: 12px; padding: 24px 28px; overflow-x: auto; }
+    .wiring table { width: 100%; border-collapse: collapse; text-align: left; }
+    .wiring th { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 12px; border-bottom: 1px solid #16213e; }
+    .wiring td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid #16213e; }
+    .wiring tr:last-child td { border-bottom: none; }
+    .wiring code {
+      background: #1a1a2e; color: #e94560; padding: 3px 8px; border-radius: 5px;
+      font-size: 13px; font-family: 'Fira Code', 'Cascadia Code', monospace;
     }
-    .commands pre { font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 13px; line-height: 1.8; color: #c0c0d0; white-space: pre-wrap; }
+    .wiring-note { margin-top: 16px; font-size: 13px; color: #888; }
+
+    /* Commands */
+    .commands { background: #0f3460; border-radius: 12px; padding: 20px 24px; overflow-x: auto; }
+    .commands pre { font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; font-size: 13px; line-height: 1.9; color: #c0c0d0; white-space: pre-wrap; }
     .commands pre .hl { color: #e94560; }
+
+    /* Footer */
     .footer {
       text-align: center; padding: 40px 20px;
       border-top: 1px solid #0f3460; color: #555; font-size: 13px;
     }
     .footer a { color: #e94560; text-decoration: none; }
+    .footer .author { font-size: 14px; color: #888; margin-top: 12px; }
+    .footer .author strong { color: #e94560; }
+
+    /* Bilingual visibility */
+    [lang] { display: none; }
+    html[data-lang="zh"] [lang="zh"],
+    html[data-lang="en"] [lang="en"] { display: initial; }
+    html[data-lang="zh"] span[lang="zh"],
+    html[data-lang="en"] span[lang="en"] { display: inline; }
+    html[data-lang="zh"] li[lang="zh"],
+    html[data-lang="en"] li[lang="en"] { display: list-item; }
+    html[data-lang="zh"] tr[lang="zh"],
+    html[data-lang="en"] tr[lang="en"] { display: table-row; }
+    html[data-lang="zh"] td[lang="zh"],
+    html[data-lang="en"] td[lang="en"] { display: table-cell; }
+    html[data-lang="zh"] a.btn[lang="zh"],
+    html[data-lang="en"] a.btn[lang="en"] { display: inline-block; }
   </style>
 </head>
 <body>
+
+  <!-- Language Toggle -->
+  <div class="lang-bar">
+    <button class="lang-btn" onclick="setLang('zh')" id="btn-zh">中</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+  </div>
+
+  <!-- Hero -->
   <div class="hero">
     <div class="emoji">🚗💨</div>
     <h1>ESP32-S3 CANable SLCAN</h1>
-    <p class="tagline">用 ESP32-S3 自带的 USB OTG 模拟 CANable，<br>免驱动 SLCAN 适配器 —— 插上即用</p>
+
+    <p class="tagline" lang="zh">用 ESP32-S3 自带的 USB OTG 模拟 CANable，免驱动 SLCAN 适配器 —— 插上即用</p>
+    <p class="tagline" lang="en">ESP32-S3 USB OTG emulates CANable — a driver-free SLCAN adapter, plug &amp; play</p>
+
     <div class="badges">
       <span class="badge">ESP32-S3</span>
       <span class="badge">TinyUSB</span>
@@ -87,21 +186,33 @@
       <span class="badge">PlatformIO</span>
       <span class="badge">WebUSB</span>
     </div>
+
     <div class="cta">
-      <a href="https://github.com/l2015/esp32s3-slcan-canable" class="btn btn-primary">📦 GitHub 仓库</a>
-      <a href="./flasher/" class="btn btn-secondary">⚡ WebUSB 刷入</a>
+      <a lang="zh" href="https://github.com/l2015/esp32s3-slcan-canable" class="btn btn-primary">📦 GitHub 仓库</a>
+      <a lang="zh" href="./flasher/" class="btn btn-secondary">⚡ WebUSB 刷入</a>
+      <a lang="en" href="https://github.com/l2015/esp32s3-slcan-canable" class="btn btn-primary">📦 GitHub Repo</a>
+      <a lang="en" href="./flasher/" class="btn btn-secondary">⚡ WebUSB Flash</a>
     </div>
   </div>
 
   <div class="content">
+
+    <!-- What is this -->
     <div class="section">
-      <h2>🔌 这是什么？</h2>
-      <p>标准 CANable 用的是 STM32 + candleLight 固件，需要 Zadig 装 WinUSB 驱动。本项目用 <strong>ESP32-S3 内置 USB OTG</strong> + TinyUSB 方案，模拟 CANable 的 VID/PID，系统自动识别为 CDC ACM 串口，<strong>免驱即用</strong>。</p>
-      <p style="margin-top:12px">支持完整 SLCAN 协议（socketcand / can-utils / python-can / BusMaster 等上位机兼容），ESP32-S3 跑 TWAI 控制器直接驱动 CAN 收发器。</p>
+      <h2 lang="zh">🔌 这是什么？</h2>
+      <h2 lang="en">🔌 What Is This?</h2>
+
+      <p lang="zh">标准 CANable 用的是 STM32 + candleLight 固件，Windows 需要 Zadig 工具手动装 WinUSB 驱动。本项目用 <strong>ESP32-S3 内置 USB OTG</strong> + TinyUSB 方案，模拟 CANable 的 VID/PID（<code>0x16D0:0x117E</code>），系统自动识别为 CDC ACM 串口，<strong>免驱即用</strong>。</p>
+      <p lang="en">Standard CANable uses STM32 + candleLight firmware, requiring Zadig to install WinUSB driver on Windows. This project uses <strong>ESP32-S3 built-in USB OTG</strong> + TinyUSB, emulating CANable VID/PID (<code>0x16D0:0x117E</code>). The system auto-detects it as a CDC ACM serial port — <strong>no driver needed</strong>.</p>
+
+      <p lang="zh" style="margin-top:12px">支持完整 SLCAN 协议，兼容 socketcand / can-utils / python-can / BusMaster 等所有主流 CAN 上位机。ESP32-S3 内置 TWAI 控制器直接驱动外部 CAN 收发器。</p>
+      <p lang="en" style="margin-top:12px">Full SLCAN protocol support, compatible with socketcand, can-utils, python-can, BusMaster, and all major CAN tools. ESP32-S3 built-in TWAI controller directly drives external CAN transceiver.</p>
     </div>
 
+    <!-- Hardware -->
     <div class="section">
-      <h2>⚙️ 硬件规格</h2>
+      <h2 lang="zh">⚙️ 硬件规格</h2>
+      <h2 lang="en">⚙️ Hardware Specs</h2>
       <div class="specs">
         <div class="spec-card">
           <div class="label">MCU</div>
@@ -120,33 +231,128 @@
           <div class="value">16D0:117E</div>
         </div>
         <div class="spec-card">
-          <div class="label">收发器</div>
+          <div class="label" lang="zh">收发器</div>
+          <div class="label" lang="en">Transceiver</div>
           <div class="value">SN65HVD230</div>
         </div>
         <div class="spec-card">
-          <div class="label">波特率</div>
-          <div class="value">10k ~ 1M + 83k</div>
+          <div class="label" lang="zh">波特率</div>
+          <div class="label" lang="en">Baud Rate</div>
+          <div class="value">10k–1M + 83k</div>
         </div>
       </div>
     </div>
 
+    <!-- GPIO Wiring -->
     <div class="section">
-      <h2>📟 SLCAN 命令速查</h2>
+      <h2 lang="zh">🔧 接线引脚</h2>
+      <h2 lang="en">🔧 GPIO Wiring</h2>
+      <div class="wiring">
+        <table>
+          <thead>
+            <tr>
+              <th>ESP32-S3</th>
+              <th>SN65HVD230</th>
+              <th lang="zh">说明</th>
+              <th lang="en">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr lang="zh">
+              <td><code>GPIO 4</code></td>
+              <td><code>TXD</code> (D)</td>
+              <td>CAN 发送</td>
+            </tr>
+            <tr lang="zh">
+              <td><code>GPIO 5</code></td>
+              <td><code>RXD</code> (R)</td>
+              <td>CAN 接收</td>
+            </tr>
+            <tr lang="zh">
+              <td><code>3.3V</code></td>
+              <td><code>VCC</code></td>
+              <td>供电（3.3V）</td>
+            </tr>
+            <tr lang="zh">
+              <td><code>GND</code></td>
+              <td><code>GND</code></td>
+              <td>共地</td>
+            </tr>
+            <tr lang="zh">
+              <td>—</td>
+              <td><code>CANH</code></td>
+              <td>接 CAN Bus CAN_H</td>
+            </tr>
+            <tr lang="zh">
+              <td>—</td>
+              <td><code>CANL</code></td>
+              <td>接 CAN Bus CAN_L</td>
+            </tr>
+
+            <tr lang="en">
+              <td><code>GPIO 4</code></td>
+              <td><code>TXD</code> (D)</td>
+              <td>CAN TX</td>
+            </tr>
+            <tr lang="en">
+              <td><code>GPIO 5</code></td>
+              <td><code>RXD</code> (R)</td>
+              <td>CAN RX</td>
+            </tr>
+            <tr lang="en">
+              <td><code>3.3V</code></td>
+              <td><code>VCC</code></td>
+              <td>Power (3.3V)</td>
+            </tr>
+            <tr lang="en">
+              <td><code>GND</code></td>
+              <td><code>GND</code></td>
+              <td>Common ground</td>
+            </tr>
+            <tr lang="en">
+              <td>—</td>
+              <td><code>CANH</code></td>
+              <td>To CAN Bus CAN_H</td>
+            </tr>
+            <tr lang="en">
+              <td>—</td>
+              <td><code>CANL</code></td>
+              <td>To CAN Bus CAN_L</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="wiring-note" lang="zh">💡 引脚定义在 <code>src/main.cpp</code> 中：<code>CAN_TX_PIN = 4</code>，<code>CAN_RX_PIN = 5</code>。如需更改，修改这两个宏重新编译即可。</p>
+        <p class="wiring-note" lang="en">💡 Pin definitions in <code>src/main.cpp</code>: <code>CAN_TX_PIN = 4</code>, <code>CAN_RX_PIN = 5</code>. To change, edit these macros and recompile.</p>
+      </div>
+    </div>
+
+    <!-- SLCAN Commands -->
+    <div class="section">
+      <h2 lang="zh">📟 SLCAN 命令速查</h2>
+      <h2 lang="en">📟 SLCAN Command Reference</h2>
       <div class="commands">
 <pre>
-<span class="hl">O</span>        打开 CAN     <span class="hl">C</span>        关闭 CAN      <span class="hl">V</span>        版本信息
-<span class="hl">S0-S8</span>   波特率设置   <span class="hl">S9</span>       83.3 kbps     <span class="hl">tIIILDD..</span> 发送标准帧
-<span class="hl">TIIIILDD</span> 发送扩展帧   <span class="hl">rIIIL</span>     发送标准 RTR   <span class="hl">Z0/Z1</span>    时间戳开关
-<span class="hl">N</span>        序列号       <span class="hl">F</span>        状态标志       <span class="hl">M/A</span>      接收滤波器
+<span class="hl">O</span>        <span lang="zh">打开 CAN</span><span lang="en">Open CAN</span>       <span class="hl">C</span>        <span lang="zh">关闭 CAN</span><span lang="en">Close CAN</span>       <span class="hl">V</span>        <span lang="zh">版本信息</span><span lang="en">Version</span>
+<span class="hl">S0–S8</span>   <span lang="zh">波特率 10k–1M</span><span lang="en">Baud 10k–1M</span>    <span class="hl">S9</span><span lang="zh">      83.3k 波特率</span><span lang="en">      83.3k baud</span>     <span class="hl">tIIILDD..</span> <span lang="zh">发送标准帧</span><span lang="en">Send std frame</span>
+<span class="hl">TIIIILDD</span> <span lang="zh">发送扩展帧</span><span lang="en">Send ext frame</span>     <span class="hl">rIIIL</span>    <span lang="zh">发送标准 RTR</span><span lang="en">Send std RTR</span>      <span class="hl">Z0/Z1</span>    <span lang="zh">时间戳开关</span><span lang="en">Timestamp toggle</span>
+<span class="hl">N</span>        <span lang="zh">序列号</span><span lang="en">Serial No.</span>       <span class="hl">F</span>        <span lang="zh">状态标志</span><span lang="en">Status flags</span>      <span class="hl">M/A</span>      <span lang="zh">接收滤波器</span><span lang="en">Rx filter</span>
 </pre>
       </div>
     </div>
 
+    <!-- Quick Start -->
     <div class="section">
-      <h2>🚀 快速上手</h2>
-      <p style="margin-bottom:12px"><strong>方式一：WebUSB 刷入（推荐）</strong></p>
-      <p>不用装任何工具 → <a href="./flasher/" style="color:#e94560">打开刷写页面</a> → USB 插上 ESP32-S3 → 进下载模式 → 点 Install</p>
-      <p style="margin:16px 0 12px"><strong>方式二：命令行编译</strong></p>
+      <h2 lang="zh">🚀 快速上手</h2>
+      <h2 lang="en">🚀 Quick Start</h2>
+
+      <p lang="zh" style="margin-bottom:10px"><strong>方式一：WebUSB 刷入（推荐）</strong></p>
+      <p lang="zh">不需要安装任何编译工具 → <a href="./flasher/">打开刷写页面</a> → USB-OTG 口连接 ESP32-S3 → 进下载模式（按住 BOOT → 按 RST → 松开 BOOT）→ 点 Install</p>
+
+      <p lang="en" style="margin-bottom:10px"><strong>Method 1: WebUSB Flash (Recommended)</strong></p>
+      <p lang="en">No build tools needed → <a href="./flasher/">Open flasher page</a> → Connect ESP32-S3 via USB-OTG → Enter boot mode (hold BOOT → press RST → release BOOT) → Click Install</p>
+
+      <p lang="zh" style="margin:20px 0 10px"><strong>方式二：命令行编译烧录</strong></p>
+      <p lang="en" style="margin:20px 0 10px"><strong>Method 2: CLI Build &amp; Flash</strong></p>
       <div class="commands">
 <pre>
 git clone https://github.com/l2015/esp32s3-slcan-canable.git
@@ -157,22 +363,70 @@ pio run --target upload --upload-port COM6
       </div>
     </div>
 
+    <!-- Compatible Tools -->
     <div class="section">
-      <h2>🔗 上位机兼容</h2>
+      <h2 lang="zh">🔗 上位机兼容</h2>
+      <h2 lang="en">🔗 Host Tool Compatibility</h2>
       <ul>
-        <li><strong>candleLight</strong> — 原生兼容，系统识别为 CANable 设备</li>
-        <li><strong>socketcand</strong> — SLCAN 协议直连</li>
-        <li><strong>can-utils</strong> — <code>slcan_attach</code> + <code>slcand</code></li>
-        <li><strong>python-can</strong> — <code>can.interfaces.slcan</code></li>
-        <li><strong>BusMaster</strong> — 选 SLCAN 接口</li>
-        <li><strong>SavvyCAN</strong> — 选 SLCAN 接口</li>
+        <li lang="zh"><strong>candleLight</strong> — 原生兼容，系统识别为 CANable 设备</li>
+        <li lang="zh"><strong>socketcand</strong> — SLCAN 协议直连</li>
+        <li lang="zh"><strong>can-utils</strong> — <code>slcan_attach</code> + <code>slcand</code> (Linux)</li>
+        <li lang="zh"><strong>python-can</strong> — <code>can.interfaces.slcan</code> 接口</li>
+        <li lang="zh"><strong>BusMaster</strong> — 选 SLCAN 接口</li>
+        <li lang="zh"><strong>SavvyCAN</strong> — 选 SLCAN / CANable 接口</li>
+        <li lang="zh"><strong>cangaroo</strong> — 选 candleLight / SLCAN</li>
+
+        <li lang="en"><strong>candleLight</strong> — Native compatibility, detected as CANable</li>
+        <li lang="en"><strong>socketcand</strong> — SLCAN protocol direct</li>
+        <li lang="en"><strong>can-utils</strong> — <code>slcan_attach</code> + <code>slcand</code> (Linux)</li>
+        <li lang="en"><strong>python-can</strong> — <code>can.interfaces.slcan</code> interface</li>
+        <li lang="en"><strong>BusMaster</strong> — Select SLCAN interface</li>
+        <li lang="en"><strong>SavvyCAN</strong> — Select SLCAN / CANable</li>
+        <li lang="en"><strong>cangaroo</strong> — Select candleLight / SLCAN</li>
       </ul>
     </div>
   </div>
 
+  <!-- Footer -->
   <div class="footer">
-    <p><a href="https://github.com/l2015/esp32s3-slcan-canable">GitHub</a> · <a href="./flasher/">WebUSB Flasher</a> · MIT License</p>
-    <p style="margin-top:8px">ESP32-S3 CANable SLCAN v1.1.0</p>
+    <p>
+      <a href="https://github.com/l2015/esp32s3-slcan-canable">GitHub</a>
+      · <a href="./flasher/">WebUSB Flasher</a>
+      · <a href="https://opensource.org/licenses/MIT">MIT License</a>
+    </p>
+    <p class="author">
+      <span lang="zh">作者：<strong>l2015</strong></span>
+      <span lang="en">Author: <strong>l2015</strong></span>
+    </p>
+    <p style="margin-top:6px">ESP32-S3 CANable SLCAN v1.1.0</p>
   </div>
+
+<script>
+// --- Bilingual toggle ---
+const DEFAULT = 'zh'; // index page defaults to Chinese
+const LANG_KEY = 'slcanLang';
+
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang);
+  localStorage.setItem(LANG_KEY, lang);
+  // Toggle buttons
+  document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  // Update OG locale
+  document.querySelector('meta[property="og:locale"]').setAttribute('content', lang === 'zh' ? 'zh_CN' : 'en_US');
+}
+
+function initLang() {
+  // Priority: URL param > localStorage > default
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  const stored = localStorage.getItem(LANG_KEY);
+  const lang = urlLang || stored || DEFAULT;
+  setLang(lang);
+}
+
+initLang();
+</script>
+
 </body>
 </html>
