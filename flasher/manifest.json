@@ -4,9 +4,18 @@
     {
       "chipFamily": "ESP32-S3",
       "parts": [
-        { "path": "../.pio/build/esp32-s3-slcan/bootloader.bin", "offset": 0x0 },
-        { "path": "../.pio/build/esp32-s3-slcan/partitions.bin",  "offset": 0x8000 },
-        { "path": "../.pio/build/esp32-s3-slcan/firmware.bin",     "offset": 0x10000 }
+        {
+          "path": "https://github.com/l2015/esp32s3-slcan-canable/releases/download/v1.1.0/bootloader.bin",
+          "offset": 0x0
+        },
+        {
+          "path": "https://github.com/l2015/esp32s3-slcan-canable/releases/download/v1.1.0/partitions.bin",
+          "offset": 0x8000
+        },
+        {
+          "path": "https://github.com/l2015/esp32s3-slcan-canable/releases/download/v1.1.0/firmware.bin",
+          "offset": 0x10000
+        }
       ]
     }
   ]

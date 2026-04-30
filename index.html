@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32-S3 CANable SLCAN</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+      padding: 80px 20px 60px;
+      text-align: center;
+      border-bottom: 3px solid #e94560;
+    }
+    .hero .emoji { font-size: 64px; margin-bottom: 16px; }
+    .hero h1 { font-size: 36px; color: #e94560; margin-bottom: 8px; }
+    .hero .tagline { font-size: 18px; color: #a0a0b0; margin-bottom: 32px; }
+    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .badge {
+      background: rgba(233, 69, 96, 0.15);
+      border: 1px solid #e94560;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #e94560;
+    }
+    .cta {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block; padding: 12px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #e94560; color: #fff; }
+    .btn-primary:hover { background: #d63852; transform: translateY(-1px); }
+    .btn-secondary { background: transparent; color: #e94560; border: 2px solid #e94560; }
+    .btn-secondary:hover { background: rgba(233, 69, 96, 0.1); }
+    .content {
+      max-width: 800px; margin: 0 auto; padding: 48px 20px;
+    }
+    .section { margin-bottom: 40px; }
+    .section h2 { font-size: 20px; color: #e94560; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #0f3460; }
+    .section p, .section li { font-size: 15px; line-height: 1.7; color: #c0c0d0; }
+    .section ul { padding-left: 20px; }
+    .section li { margin-bottom: 6px; }
+    .specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .spec-card {
+      background: #16213e; border: 1px solid #0f3460;
+      border-radius: 12px; padding: 20px; text-align: center;
+    }
+    .spec-card .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .spec-card .value { font-size: 20px; font-weight: 700; color: #e0e0e0; }
+    .commands {
+      background: #0f3460; border-radius: 12px; padding: 20px 24px;
+      overflow-x: auto;
+    }
+    .commands pre { font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 13px; line-height: 1.8; color: #c0c0d0; white-space: pre-wrap; }
+    .commands pre .hl { color: #e94560; }
+    .footer {
+      text-align: center; padding: 40px 20px;
+      border-top: 1px solid #0f3460; color: #555; font-size: 13px;
+    }
+    .footer a { color: #e94560; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="emoji">🚗💨</div>
+    <h1>ESP32-S3 CANable SLCAN</h1>
+    <p class="tagline">用 ESP32-S3 自带的 USB OTG 模拟 CANable，<br>免驱动 SLCAN 适配器 —— 插上即用</p>
+    <div class="badges">
+      <span class="badge">ESP32-S3</span>
+      <span class="badge">TinyUSB</span>
+      <span class="badge">SLCAN</span>
+      <span class="badge">CAN 2.0B</span>
+      <span class="badge">PlatformIO</span>
+      <span class="badge">WebUSB</span>
+    </div>
+    <div class="cta">
+      <a href="https://github.com/l2015/esp32s3-slcan-canable" class="btn btn-primary">📦 GitHub 仓库</a>
+      <a href="./flasher/" class="btn btn-secondary">⚡ WebUSB 刷入</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section">
+      <h2>🔌 这是什么？</h2>
+      <p>标准 CANable 用的是 STM32 + candleLight 固件，需要 Zadig 装 WinUSB 驱动。本项目用 <strong>ESP32-S3 内置 USB OTG</strong> + TinyUSB 方案，模拟 CANable 的 VID/PID，系统自动识别为 CDC ACM 串口，<strong>免驱即用</strong>。</p>
+      <p style="margin-top:12px">支持完整 SLCAN 协议（socketcand / can-utils / python-can / BusMaster 等上位机兼容），ESP32-S3 跑 TWAI 控制器直接驱动 CAN 收发器。</p>
+    </div>
+
+    <div class="section">
+      <h2>⚙️ 硬件规格</h2>
+      <div class="specs">
+        <div class="spec-card">
+          <div class="label">MCU</div>
+          <div class="value">ESP32-S3</div>
+        </div>
+        <div class="spec-card">
+          <div class="label">USB</div>
+          <div class="value">CDC ACM</div>
+        </div>
+        <div class="spec-card">
+          <div class="label">CAN</div>
+          <div class="value">CAN 2.0B</div>
+        </div>
+        <div class="spec-card">
+          <div class="label">VID/PID</div>
+          <div class="value">16D0:117E</div>
+        </div>
+        <div class="spec-card">
+          <div class="label">收发器</div>
+          <div class="value">SN65HVD230</div>
+        </div>
+        <div class="spec-card">
+          <div class="label">波特率</div>
+          <div class="value">10k ~ 1M + 83k</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📟 SLCAN 命令速查</h2>
+      <div class="commands">
+<pre>
+<span class="hl">O</span>        打开 CAN     <span class="hl">C</span>        关闭 CAN      <span class="hl">V</span>        版本信息
+<span class="hl">S0-S8</span>   波特率设置   <span class="hl">S9</span>       83.3 kbps     <span class="hl">tIIILDD..</span> 发送标准帧
+<span class="hl">TIIIILDD</span> 发送扩展帧   <span class="hl">rIIIL</span>     发送标准 RTR   <span class="hl">Z0/Z1</span>    时间戳开关
+<span class="hl">N</span>        序列号       <span class="hl">F</span>        状态标志       <span class="hl">M/A</span>      接收滤波器
+</pre>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🚀 快速上手</h2>
+      <p style="margin-bottom:12px"><strong>方式一：WebUSB 刷入（推荐）</strong></p>
+      <p>不用装任何工具 → <a href="./flasher/" style="color:#e94560">打开刷写页面</a> → USB 插上 ESP32-S3 → 进下载模式 → 点 Install</p>
+      <p style="margin:16px 0 12px"><strong>方式二：命令行编译</strong></p>
+      <div class="commands">
+<pre>
+git clone https://github.com/l2015/esp32s3-slcan-canable.git
+cd esp32s3-slcan-canable
+pio run
+pio run --target upload --upload-port COM6
+</pre>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔗 上位机兼容</h2>
+      <ul>
+        <li><strong>candleLight</strong> — 原生兼容，系统识别为 CANable 设备</li>
+        <li><strong>socketcand</strong> — SLCAN 协议直连</li>
+        <li><strong>can-utils</strong> — <code>slcan_attach</code> + <code>slcand</code></li>
+        <li><strong>python-can</strong> — <code>can.interfaces.slcan</code></li>
+        <li><strong>BusMaster</strong> — 选 SLCAN 接口</li>
+        <li><strong>SavvyCAN</strong> — 选 SLCAN 接口</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><a href="https://github.com/l2015/esp32s3-slcan-canable">GitHub</a> · <a href="./flasher/">WebUSB Flasher</a> · MIT License</p>
+    <p style="margin-top:8px">ESP32-S3 CANable SLCAN v1.1.0</p>
+  </div>
+</body>
+</html>
