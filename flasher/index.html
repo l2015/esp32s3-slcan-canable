@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32-S3 CANable SLCAN — Web Flasher</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #e94560;
+    }
+    h2 {
+      font-size: 14px;
+      font-weight: 400;
+      color: #a0a0b0;
+      margin-bottom: 32px;
+    }
+    .steps {
+      text-align: left;
+      background: #0f3460;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .steps ol {
+      padding-left: 20px;
+      line-height: 2;
+    }
+    .steps li { font-size: 14px; }
+    .steps code {
+      background: #1a1a2e;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .warning {
+      background: rgba(233, 69, 96, 0.15);
+      border: 1px solid #e94560;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .version {
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+    }
+    esp-web-install-button {
+      --esp-tools-button-color: #e94560;
+      --esp-tools-button-text-color: #fff;
+      --esp-tools-button-border-radius: 10px;
+      --esp-tools-button-font-size: 16px;
+      --esp-tools-button-padding: 12px 40px;
+      --esp-tools-progress-color: #e94560;
+    }
+    .compat { font-size: 12px; color: #666; margin-top: 12px; }
+  </style>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🚗</div>
+    <h1>ESP32-S3 CANable SLCAN</h1>
+    <h2>WebUSB Firmware Flasher</h2>
+
+    <div class="steps">
+      <ol>
+        <li>Connect ESP32-S3 via <strong>USB-OTG</strong> port to this computer</li>
+        <li>Hold <code>BOOT</code>, press <code>RST</code>, release <code>BOOT</code></li>
+        <li>Click the <strong>Connect</strong> button below</li>
+        <li>Select your ESP32-S3 from the browser popup</li>
+        <li>Click <strong>Install</strong> to flash the firmware</li>
+      </ol>
+    </div>
+
+    <div class="warning">
+      ⚠️ Use the <strong>USB-OTG</strong> port (not USB-Serial/JTAG).<br>
+      First-time flashing requires manual boot mode entry.
+      After the firmware is installed, future updates can use the SLCAN serial port.
+    </div>
+
+    <esp-web-install-button
+      manifest="manifest.json">
+    </esp-web-install-button>
+
+    <div class="compat">
+      Requires Chrome / Edge 89+ on desktop
+    </div>
+
+    <div class="version">
+      Firmware: CANable SLCAN v1.1.0 · ESP32-S3 · VID 0x16D0 PID 0x117E
+    </div>
+  </div>
+</body>
+</html>

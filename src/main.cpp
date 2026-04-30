@@ -31,7 +31,7 @@
 
 // SLCAN Version (matches CANable 2.5 format)
 #define SLCAN_VERSION     101
-#define FIRMWARE_VERSION  "1.0.0"
+#define FIRMWARE_VERSION  "1.1.0"
 #define SLCAN_VERSION_STR "101"
 
 // Buffer sizes

@@ -1,0 +1,13 @@
+{
+  "name": "ESP32-S3 CANable SLCAN",
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        { "path": "../.pio/build/esp32-s3-slcan/bootloader.bin", "offset": 0x0 },
+        { "path": "../.pio/build/esp32-s3-slcan/partitions.bin",  "offset": 0x8000 },
+        { "path": "../.pio/build/esp32-s3-slcan/firmware.bin",     "offset": 0x10000 }
+      ]
+    }
+  ]
+}

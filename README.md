@@ -46,7 +46,18 @@ GND     ────────  GND
 - [PlatformIO CLI](https://platformio.org/install/cli) or [VS Code + PlatformIO extension](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
 - ESP32-S3 dev board + SN65HVD230 CAN transceiver module
 
-#### Compile & Upload
+#### WebUSB Flasher (Easiest! 🌐)
+
+No build tools required — flash directly from your browser:
+
+1. Visit the **[WebUSB Flasher Page](https://l2015.github.io/esp32s3-slcan-canable/flasher/)**
+2. Connect ESP32-S3 via USB-OTG, enter boot mode (hold BOOT → press RST → release BOOT)
+3. Click **Connect** and select your device
+4. Click **Install** — firmware flashes automatically!
+
+> 💡 Requires Chrome/Edge 89+ on desktop. After first flash, WebUSB works through the SLCAN CDC port.
+
+#### CLI Build & Flash
 
 ```bash
 git clone https://github.com/l2015/esp32s3-slcan-canable.git
@@ -105,12 +116,19 @@ pio run --target upload --upload-port COM6
 
 ```
 ├── src/
-│   ├── main.cpp          # SLCAN protocol implementation + CAN driver
-│   └── dtr_fix.c         # TinyUSB DTR compatibility fix
+│   ├── main.cpp           # SLCAN protocol implementation + CAN driver
+│   └── dtr_fix.c           # TinyUSB DTR compatibility fix
 ├── boards/
-│   └── esp32s3_slcan.json # PlatformIO custom board definition
-├── fix_usb_strings.py    # Post-build: inject USB descriptor strings
-├── platformio.ini        # PlatformIO configuration
+│   └── esp32s3_slcan.json  # PlatformIO custom board definition
+├── flasher/
+│   ├── index.html           # WebUSB firmware flasher page
+│   └── manifest.json        # ESP Web Tools flash manifest
+├── .github/workflows/
+│   └── build.yml            # CI/CD: auto-build + GitHub Releases
+├── fix_usb_strings.py      # Post-build: inject USB descriptor strings
+├── platformio.ini           # PlatformIO configuration
+├── VERSION                  # Release version number
+├── CHANGELOG.md             # Release changelog
 ├── .gitignore
 └── LICENSE
 ```
@@ -188,7 +206,18 @@ GND     ────────  GND
 - [PlatformIO CLI](https://platformio.org/install/cli) 或 [VS Code + PlatformIO 插件](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)
 - ESP32-S3 开发板 + SN65HVD230 CAN 收发器模块
 
-#### 编译上传
+#### WebUSB 网页烧录（最简单！🌐）
+
+无需安装任何工具，直接从浏览器刷入固件：
+
+1. 打开 **[WebUSB 刷写页面](https://l2015.github.io/esp32s3-slcan-canable/flasher/)**
+2. 通过 USB-OTG 连接 ESP32-S3，进入下载模式（按 BOOT → 按 RST → 松开 BOOT）
+3. 点击 **Connect** 选择设备
+4. 点击 **Install**，固件自动刷入！
+
+> 💡 需要 Chrome/Edge 89+ 桌面版。首次烧录后可通过 SLCAN CDC 端口 WebUSB 更新。
+
+#### 命令行编译上传
 
 ```bash
 git clone https://github.com/l2015/esp32s3-slcan-canable.git
